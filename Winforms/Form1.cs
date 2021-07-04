@@ -41,7 +41,7 @@ namespace Winforms
             try
             {
                 //var greeting = await GetGreetings(name);
-                var cards = await GetCards(2500);
+                var cards = await GetCards(1000);
                 stopwatch.Start();
                 await ProcessCards(cards);
 
@@ -57,22 +57,42 @@ namespace Winforms
 
         private async Task ProcessCards(List<string> cards)
         {
+            using var semaphore = new SemaphoreSlim(250);
             var tasks = new List<Task<HttpResponseMessage>>();
 
-            await Task.Run(() =>
+            tasks = cards.Select(async card =>
             {
-                foreach (var card in cards)
+                var json = JsonConvert.SerializeObject(card);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                await semaphore.WaitAsync();
+                try
                 {
-                    var json = JsonConvert.SerializeObject(card);
-                    var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                    var responseTask = httpClient.PostAsync($"{apiURL}/cards", content);
-                    tasks.Add(responseTask);
+                    return await httpClient.PostAsync($"{apiURL}/cards", content);
                 }
-            });
-            
+                finally
+                {
+                    semaphore.Release();
+                }
+                
+            }).ToList();   
 
-            await Task.WhenAll(tasks);
+            var responses = await Task.WhenAll(tasks);
+
+            var rejectedCards = new List<string>();
+            foreach (var response in responses)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var responseCard = JsonConvert.DeserializeObject<CardResponse>(content);
+                if (!responseCard.Approved)
+                {
+                    rejectedCards.Add(responseCard.Card);
+                }
+            }
+            foreach (var card in rejectedCards)
+            {
+                Console.WriteLine($"Card {card} was rejected");
+            }
         }
 
         private async Task<List<string>> GetCards(int amountOfCardGenerate)
