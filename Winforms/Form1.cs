@@ -41,7 +41,7 @@ namespace Winforms
             try
             {
                 //var greeting = await GetGreetings(name);
-                var cards = await GetCards(1000);
+                var cards = await GetCards(1000, cts.Token);
                 stopwatch.Start();
                 await ProcessCards(cards, progressReport, cts.Token);
 
@@ -137,15 +137,22 @@ namespace Winforms
             }
         }
 
-        private async Task<List<string>> GetCards(int amountOfCardGenerate)
+        private async Task<List<string>> GetCards(int amountOfCardGenerate, CancellationToken token= default)
         {
-            return await Task.Run(() =>
+            return await Task.Run(async () =>
             {
                 var cards = new List<string>();
                 for (int i = 0; i < amountOfCardGenerate; i++)
                 {
                     //0000000000000001
+                    await Task.Delay(TimeSpan.FromSeconds(1));
                     cards.Add(i.ToString().PadLeft(16, '0'));
+                    Console.WriteLine($"card number {1} is created");
+
+                    if (token.IsCancellationRequested)
+                    {
+                        throw new TaskCanceledException();
+                    }
                 }
                 return cards;
             });
