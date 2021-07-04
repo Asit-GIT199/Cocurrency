@@ -34,6 +34,7 @@ namespace Winforms
             this.LoadingGif = new System.Windows.Forms.PictureBox();
             this.label1 = new System.Windows.Forms.Label();
             this.txtName = new System.Windows.Forms.TextBox();
+            this.pgCards = new System.Windows.Forms.ProgressBar();
             ((System.ComponentModel.ISupportInitialize)(this.LoadingGif)).BeginInit();
             this.SuspendLayout();
             // 
@@ -75,11 +76,20 @@ namespace Winforms
             this.txtName.Size = new System.Drawing.Size(100, 20);
             this.txtName.TabIndex = 3;
             // 
+            // pgCards
+            // 
+            this.pgCards.Location = new System.Drawing.Point(318, 380);
+            this.pgCards.Name = "pgCards";
+            this.pgCards.Size = new System.Drawing.Size(233, 23);
+            this.pgCards.TabIndex = 4;
+            this.pgCards.Visible = false;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.pgCards);
             this.Controls.Add(this.txtName);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.LoadingGif);
@@ -98,6 +108,7 @@ namespace Winforms
         private System.Windows.Forms.PictureBox LoadingGif;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox txtName;
+        private System.Windows.Forms.ProgressBar pgCards;
     }
 }
 

@@ -28,22 +28,20 @@ namespace Winforms
 
         private async void btnStart_Click(object sender, EventArgs e)
         {
+            var progressReport = new Progress<int>(ReportCardProcessingProgress);
             LoadingGif.Visible = true;
+            pgCards.Visible = true;
 
             var stopwatch = new Stopwatch();
-
-            //Thread.Sleep(TimeSpan.FromSeconds(5));
-           // await Task.Delay(TimeSpan.FromSeconds(5));  // This will till the task finished, then the next line will be executed
-
-            //await Wait();
+           
 
             var name = txtName.Text;
             try
             {
                 //var greeting = await GetGreetings(name);
-                var cards = await GetCards(1000);
+                var cards = await GetCards(2000);
                 stopwatch.Start();
-                await ProcessCards(cards);
+                await ProcessCards(cards, progressReport);
 
             }
             catch (HttpRequestException ex) // Exception will not throw if await is not mentioned in the try bloack
@@ -53,12 +51,21 @@ namespace Winforms
 
             MessageBox.Show($"Operation done in {stopwatch.ElapsedMilliseconds / 1000.0} seconds");
             LoadingGif.Visible = false;
+            pgCards.Visible = false;
+            pgCards.Value = 0;
         }
 
-        private async Task ProcessCards(List<string> cards)
+        private void ReportCardProcessingProgress(int percentage)
+        {
+            pgCards.Value = percentage;
+        }
+
+        private async Task ProcessCards(List<string> cards, IProgress<int> progress=null)
         {
             using var semaphore = new SemaphoreSlim(250);
             var tasks = new List<Task<HttpResponseMessage>>();
+
+            var taskResolved = 0;
 
             tasks = cards.Select(async card =>
             {
@@ -68,7 +75,17 @@ namespace Winforms
                 await semaphore.WaitAsync();
                 try
                 {
-                    return await httpClient.PostAsync($"{apiURL}/cards", content);
+
+                    var internalTask =  await httpClient.PostAsync($"{apiURL}/cards", content);
+                    if (progress!=null)
+                    {
+                        taskResolved++;
+                        var percentage = (double)taskResolved / cards.Count;
+                        percentage = percentage * 100;
+                        var percentageInt = (int)Math.Round(percentage, 0);
+                        progress.Report(percentageInt);
+                    }
+                    return internalTask;
                 }
                 finally
                 {
