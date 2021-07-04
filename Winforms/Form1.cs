@@ -65,7 +65,7 @@ namespace Winforms
             using var semaphore = new SemaphoreSlim(250);
             var tasks = new List<Task<HttpResponseMessage>>();
 
-            var taskResolved = 0;
+            //var taskResolved = 0;
 
             tasks = cards.Select(async card =>
             {
@@ -77,14 +77,14 @@ namespace Winforms
                 {
 
                     var internalTask =  await httpClient.PostAsync($"{apiURL}/cards", content);
-                    if (progress!=null)
-                    {
-                        taskResolved++;
-                        var percentage = (double)taskResolved / cards.Count;
-                        percentage = percentage * 100;
-                        var percentageInt = (int)Math.Round(percentage, 0);
-                        progress.Report(percentageInt);
-                    }
+                    //if (progress!=null)
+                    //{
+                    //    taskResolved++;
+                    //    var percentage = (double)taskResolved / cards.Count;
+                    //    percentage = percentage * 100;
+                    //    var percentageInt = (int)Math.Round(percentage, 0);
+                    //    progress.Report(percentageInt);
+                    //}
                     return internalTask;
                 }
                 finally
@@ -94,7 +94,21 @@ namespace Winforms
                 
             }).ToList();   
 
-            var responses = await Task.WhenAll(tasks);
+            var responsesTasks = Task.WhenAll(tasks);
+
+            if (progress!=null)
+            {
+                while (await Task.WhenAny(responsesTasks, Task.Delay(TimeSpan.FromSeconds(2))) != responsesTasks)
+                {
+                    var completedTask = tasks.Where(x => x.IsCompleted).Count();
+                    var percentage = (double)completedTask / tasks.Count;
+                    percentage = percentage * 100;
+                    var percentageInt = (int)Math.Round(percentage, 0);
+                    progress.Report(percentageInt);
+                }
+            }
+
+            var responses = await responsesTasks;
 
             var rejectedCards = new List<string>();
             foreach (var response in responses)
