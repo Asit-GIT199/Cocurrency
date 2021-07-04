@@ -30,6 +30,7 @@ namespace Winforms
         private async void btnStart_Click(object sender, EventArgs e)
         {
             cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
             var progressReport = new Progress<int>(ReportCardProcessingProgress);
             LoadingGif.Visible = true;
             pgCards.Visible = true;
@@ -41,7 +42,7 @@ namespace Winforms
             try
             {
                 //var greeting = await GetGreetings(name);
-                var cards = await GetCards(1000, cts.Token);
+                var cards = await GetCards(3000, cts.Token);
                 stopwatch.Start();
                 await ProcessCards(cards, progressReport, cts.Token);
 
@@ -69,6 +70,29 @@ namespace Winforms
         private void ReportCardProcessingProgress(int percentage)
         {
             pgCards.Value = percentage;
+        }
+
+        private Task ProcessCardMock(List<string> cards, IProgress<int> progress = null, CancellationToken token = default)
+        {
+            //logic
+            return Task.CompletedTask;//Synchronous task
+        }
+
+        private  Task<List<string>> GetCardsMock(int amountOfCardGenerate, CancellationToken token = default)
+        {
+            var cards = new List<string>();
+            cards.Add("0001");
+            return Task.FromResult(cards);
+        }
+        private Task CreateTaskWithException()
+        {
+            return Task.FromException(new ApplicationException());
+        }
+
+        private Task CreateTaskCancelled()
+        {
+            var cts2 = new CancellationTokenSource();
+            return Task.FromCanceled(cts2.Token);
         }
 
         private async Task ProcessCards(List<string> cards, IProgress<int> progress=null, CancellationToken token= default)
