@@ -18,6 +18,7 @@ namespace Winforms
     {
         private string apiURL;
         private HttpClient httpClient;
+        private CancellationTokenSource cts;
 
         public Form1()
         {
@@ -28,6 +29,7 @@ namespace Winforms
 
         private async void btnStart_Click(object sender, EventArgs e)
         {
+            cts = new CancellationTokenSource();
             var progressReport = new Progress<int>(ReportCardProcessingProgress);
             LoadingGif.Visible = true;
             pgCards.Visible = true;
@@ -39,20 +41,29 @@ namespace Winforms
             try
             {
                 //var greeting = await GetGreetings(name);
-                var cards = await GetCards(2000);
+                var cards = await GetCards(1000);
                 stopwatch.Start();
-                await ProcessCards(cards, progressReport);
+                await ProcessCards(cards, progressReport, cts.Token);
 
+            }
+            catch(TaskCanceledException ex)
+            {
+                MessageBox.Show("Task was cancelled ");
             }
             catch (HttpRequestException ex) // Exception will not throw if await is not mentioned in the try bloack
             {
                 MessageBox.Show(ex.Message);                
+            }
+            finally
+            {
+                cts.Dispose();
             }
 
             MessageBox.Show($"Operation done in {stopwatch.ElapsedMilliseconds / 1000.0} seconds");
             LoadingGif.Visible = false;
             pgCards.Visible = false;
             pgCards.Value = 0;
+            cts = null;
         }
 
         private void ReportCardProcessingProgress(int percentage)
@@ -60,7 +71,7 @@ namespace Winforms
             pgCards.Value = percentage;
         }
 
-        private async Task ProcessCards(List<string> cards, IProgress<int> progress=null)
+        private async Task ProcessCards(List<string> cards, IProgress<int> progress=null, CancellationToken token= default)
         {
             using var semaphore = new SemaphoreSlim(250);
             var tasks = new List<Task<HttpResponseMessage>>();
@@ -76,7 +87,7 @@ namespace Winforms
                 try
                 {
 
-                    var internalTask =  await httpClient.PostAsync($"{apiURL}/cards", content);
+                    var internalTask =  await httpClient.PostAsync($"{apiURL}/cards", content, token);
                     //if (progress!=null)
                     //{
                     //    taskResolved++;
@@ -154,6 +165,11 @@ namespace Winforms
                 var greeting = await response.Content.ReadAsStringAsync();
                 return greeting;
             }
+        }
+
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            cts?.Cancel();
         }
     }
 }

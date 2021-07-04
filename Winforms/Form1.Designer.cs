@@ -35,6 +35,7 @@ namespace Winforms
             this.label1 = new System.Windows.Forms.Label();
             this.txtName = new System.Windows.Forms.TextBox();
             this.pgCards = new System.Windows.Forms.ProgressBar();
+            this.btnCancel = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.LoadingGif)).BeginInit();
             this.SuspendLayout();
             // 
@@ -84,11 +85,22 @@ namespace Winforms
             this.pgCards.TabIndex = 4;
             this.pgCards.Visible = false;
             // 
+            // btnCancel
+            // 
+            this.btnCancel.Location = new System.Drawing.Point(498, 103);
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Size = new System.Drawing.Size(75, 23);
+            this.btnCancel.TabIndex = 6;
+            this.btnCancel.Text = "Cancel";
+            this.btnCancel.UseVisualStyleBackColor = true;
+            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.pgCards);
             this.Controls.Add(this.txtName);
             this.Controls.Add(this.label1);
@@ -109,6 +121,7 @@ namespace Winforms
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox txtName;
         private System.Windows.Forms.ProgressBar pgCards;
+        private System.Windows.Forms.Button btnCancel;
     }
 }
 
