@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebAPI.Helpers;
 
 namespace WebAPI.Controllers
 {
@@ -14,6 +15,32 @@ namespace WebAPI.Controllers
         public ActionResult<string> GetGreeting(string name)
         {
             return $"Hello, {name}";
+        }
+
+        [HttpGet("async/{name}")]
+        public async Task<ActionResult<string>> GetGreetingAsync(string name)
+        {
+            var waitingTime = RandomGen.NextDouble() * 10 + 1;
+            await Task.Delay(TimeSpan.FromSeconds(waitingTime));
+
+
+            return $"Hello, {name}";
+        }
+
+        [HttpGet("goodbye/{name}")]
+        public async Task<ActionResult<string>> GetGoodbye(string name)
+        {
+            var waitingTime = RandomGen.NextDouble() * 10 + 1;
+            await Task.Delay(TimeSpan.FromSeconds(waitingTime));
+
+
+            return $"Good bye, {name}";
+        }
+
+        [HttpGet("asit")]
+        public ActionResult<string> GetGreetings()
+        {
+            return "Hello Asit";
         }
     }
 }
