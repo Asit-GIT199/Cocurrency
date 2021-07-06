@@ -47,30 +47,21 @@ namespace Winforms
         }
         private async void btnStart_Click(object sender, EventArgs e)
         { 
-            cts = new CancellationTokenSource();
-
-            try
+            foreach (var name in GenerateNames())
             {
-                var result = await Task.Run(async () =>
-                {
-                    await Task.Delay(TimeSpan.FromSeconds(5));
-                    return 7;
-                }).WithCancellation(cts.Token);
-
-                Console.WriteLine(result);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-            finally
-            {
-                cts.Dispose();
-                cts = null;
+                Console.WriteLine(name);
             }
 
             
         }
+        private IEnumerable<string> GenerateNames()
+        {
+            yield return "Asit";
+            //read.Sleep(3000);
+            yield return "Jack";
+            yield return "John";
+        }
+
         private void btnCancel_Click(object sender, EventArgs e)
         {
             cts?.Cancel();
