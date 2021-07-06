@@ -46,22 +46,34 @@ namespace Winforms
             return tcs.Task;
         }
         private async void btnStart_Click(object sender, EventArgs e)
-        {
-            var task = EvaluateValue(txtInput.Text);
+        { 
+            cts = new CancellationTokenSource();
 
-            Console.WriteLine("begin");
-            Console.WriteLine($"Is Completed : {task.IsCompleted }");
-            Console.WriteLine($"Is Cancelled: {task.IsCanceled}");
-            Console.WriteLine($"Is faulted {task.IsFaulted}");
             try
             {
-                await task;
+                var result = await Task.Run(async () =>
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(5));
+                    return 7;
+                }).WithCancellation(cts.Token);
+
+                Console.WriteLine(result);
             }
             catch (Exception ex)
             {
-
-                Console.WriteLine($"Exception : {ex.Message}");
+                Console.WriteLine(ex.Message);
             }
+            finally
+            {
+                cts.Dispose();
+                cts = null;
+            }
+
+            
+        }
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            cts?.Cancel();
         }
     }
 }

@@ -33,6 +33,7 @@ namespace Winforms
             this.btnStart = new System.Windows.Forms.Button();
             this.LoadingGif = new System.Windows.Forms.PictureBox();
             this.txtInput = new System.Windows.Forms.TextBox();
+            this.btnCancel = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.LoadingGif)).BeginInit();
             this.SuspendLayout();
             // 
@@ -65,11 +66,22 @@ namespace Winforms
             this.txtInput.Size = new System.Drawing.Size(100, 20);
             this.txtInput.TabIndex = 4;
             // 
+            // btnCancel
+            // 
+            this.btnCancel.Location = new System.Drawing.Point(581, 108);
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Size = new System.Drawing.Size(75, 23);
+            this.btnCancel.TabIndex = 5;
+            this.btnCancel.Text = "Cancel";
+            this.btnCancel.UseVisualStyleBackColor = true;
+            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
+            // 
             // Form4
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.txtInput);
             this.Controls.Add(this.LoadingGif);
             this.Controls.Add(this.btnStart);
@@ -86,5 +98,6 @@ namespace Winforms
         private System.Windows.Forms.Button btnStart;
         private System.Windows.Forms.PictureBox LoadingGif;
         private System.Windows.Forms.TextBox txtInput;
+        private System.Windows.Forms.Button btnCancel;
     }
 }
