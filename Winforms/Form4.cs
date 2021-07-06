@@ -29,12 +29,20 @@ namespace Winforms
         {
             LoadingGif.Visible = true;
 
-            //Anti pattern: Sync-over-Async
-            //var value = GetValue().Result; This will create deadloack
+            var resultStartNew = await Task.Factory.StartNew(async () =>
+            {
+                 await Task.Delay(TimeSpan.FromSeconds(1));
+                return 7;
+            }).Unwrap();
 
-            var value = await GetValue(); // Optimal solution
-
-            Console.WriteLine(value);
+            var resultRun = await Task.Run(async () =>
+            {
+                await Task.Delay(TimeSpan.FromSeconds(1));
+                return 7;
+            });
+            Console.WriteLine($"Startnew Result : {resultStartNew}" );
+            Console.WriteLine("-----------------");
+            Console.WriteLine($"Task. Run Result : {resultRun}");
 
             LoadingGif.Visible = false;
         }
