@@ -23,7 +23,8 @@ namespace WebAPI.Controllers
             var waitingTime = RandomGen.NextDouble() * 10 + 1;
             await Task.Delay(TimeSpan.FromSeconds(waitingTime));
 
-
+            //MyAsyncVoidMethod();
+            AsyncTaskMethod();
             return $"Hello, {name}";
         }
 
@@ -41,6 +42,20 @@ namespace WebAPI.Controllers
         public ActionResult<string> GetGreetings()
         {
             return "Hello Asit";
+        }
+
+        private async Task AsyncTaskMethod()
+        {
+            await Task.Delay(1);
+            throw new ApplicationException();
+        }
+
+
+        //Anti Pattern - Very dangerous, should be avoid at all cost
+        private async void MyAsyncVoidMethod()
+        {
+            await Task.Delay(1);
+            throw new ApplicationException();
         }
     }
 }

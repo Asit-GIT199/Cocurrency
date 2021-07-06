@@ -24,34 +24,32 @@ namespace Winforms
             InitializeComponent();
             apiURL = "https://localhost:44342/api";
             httpClient = new HttpClient();
-        }
-
-
-        public Task EvaluateValue(string value)
-        {
-            var tcs = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
-            if (value=="1")
-            {
-                tcs.SetResult(null);
-            }
-            else if(value=="2")
-            {
-                tcs.SetCanceled();
-
-            }
-            else
-            {
-                tcs.SetException(new ApplicationException($"Invalid Value {value}"));
-            }
-
-            return tcs.Task;
-        }
+        }        
         private async void btnStart_Click(object sender, EventArgs e)
-        {           
+        {
+            LoadingGif.Visible = true;
 
-            var namesEnumerable = GenerateNames();
-            await ProcessNames(namesEnumerable);
+            //Anti pattern: Sync-over-Async
+            //var value = GetValue().Result; This will create deadloack
 
+            var value = await GetValue(); // Optimal solution
+
+            Console.WriteLine(value);
+
+            LoadingGif.Visible = false;
+        }
+
+        private async Task<string> GetValue()
+        {
+            //await Task.Delay(TimeSpan.FromSeconds(3));
+            await Task.Delay(TimeSpan.FromSeconds(3)).ConfigureAwait(false);
+            return "Concurrency";
+        }
+
+        
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            cts?.Cancel();
         }
 
         private async Task ProcessNames(IAsyncEnumerable<string> namesEnumarable)
@@ -76,7 +74,7 @@ namespace Winforms
             }
 
         }
-        private async IAsyncEnumerable<string> GenerateNames([EnumeratorCancellation] CancellationToken token= default)
+        private async IAsyncEnumerable<string> GenerateNames([EnumeratorCancellation] CancellationToken token = default)
         {
             yield return "Asit";
             await Task.Delay(TimeSpan.FromSeconds(5), token);
@@ -85,9 +83,5 @@ namespace Winforms
             yield return "John";
         }
 
-        private void btnCancel_Click(object sender, EventArgs e)
-        {
-            cts?.Cancel();
-        }
     }
 }
