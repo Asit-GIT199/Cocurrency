@@ -16,7 +16,7 @@ namespace Winforms
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new ParallelismForm1());
+            Application.Run(new ParallelismForm2());
         }
     }
 }
